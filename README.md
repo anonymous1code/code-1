@@ -1,4 +1,15 @@
 [Data](https://huggingface.co/datasets/anonymous1code/data)
+
+## Visualize Dataset
+```bash
+#Generates a self-contained HTML report with source and target image thumbnails, metadata, and filtering controls.  
+
+
+python scripts/visualize_datasample.py
+python scripts/visualize_datasample.py --dataset data/datasample_to_share --output report.html
+python scripts/visualize_datasample.py --max-thumb 512
+```
+
 ## Quick Start
 
 ```bash
