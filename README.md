@@ -50,7 +50,7 @@ python scripts/infer_qwen3_autoqa.py \
 ```
 ## Batch Inference
 
-For large-scale evaluation across multiple VLMs (Claude, Nova, Llama, Qwen), see `bedrock/`:
+For large-scale evaluation across multiple VLMs (Claude, Nova, Llama, Mistral), see `bedrock/`:
 
 ```bash
 # Prepare and submit batch inference jobs
@@ -65,6 +65,26 @@ python bedrock/run_bedrock_batch_inference.py \
 python bedrock/evaluate_batch_outputs.py \
     --output-dir outputs/ \
     --datasets vcape-s-20k=data/vcape-s-20k vcape-r-20k=data/vcape-r-20k
+```
+
+## VLLM Inference
+
+For local evaluation across multiple VLMs (Gemma, Qwen):
+
+```bash
+# In one terminal set up VLLM
+vllm serve "Qwen/Qwen3-VL-8B-Instruct"\
+    --gpu-memory-utilization 1 \
+    --max-model-len 10072 \
+    --port 8765 \
+    --max-num-batched-tokens 65536 \
+    --max-num-seqs 128 \
+    --limit-mm-per-prompt '{"image": 3, "video": 0}' \
+    
+# In another run evaluate dataset
+python evaluate_dataset.py --evaluator autoqa --dataset ./dataset \
+        --model Qwen/Qwen3-VL-8B-Instruct --vllm-port 8765 --num-threads 40
+
 ```
 
 
