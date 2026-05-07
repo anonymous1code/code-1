@@ -1,7 +1,4 @@
-# AutoQA: Vision-Language Model Fine-Tuning for Automated Quality Assessment
-
-Fine-tune Vision-Language Models (VLMs) on stratified subsamples of the [V-CAPE](https://huggingface.co/datasets/) datasets to improve automated quality assessment (AutoQA) of generated product images.
-
+Code to for [V-CAPE](https://huggingface.co/datasets/anonymous1code/data)
 ## Quick Start
 
 ```bash
@@ -26,14 +23,6 @@ python scripts/infer_qwen3_autoqa.py \
     --dataset vcape-r
 ```
 
-## Pipeline Overview
-
-The fine-tuning pipeline has three phases, orchestrated by a single entry-point script:
-
-1. **Stratified Sampling** — select N image pairs per rejection-reason category (+ N accepted) from each dataset split.
-2. **Training Data Formatting** — convert sampled pairs into Qwen3-VL chat-format examples with ground-truth chain-of-thought reasoning.
-3. **LoRA Fine-Tuning** — train lightweight adapter weights on top of the frozen base model.
-
 ## Repository Structure
 
 ```
@@ -57,9 +46,36 @@ The fine-tuning pipeline has three phases, orchestrated by a single entry-point 
 │   ├── create_qwen_sagemaker_model.py      # SageMaker model registration
 │   └── *.sh                                # Shell orchestration scripts
 ├── requirements.txt
-├── LICENSE
 └── README.md
 ```
+## Batch Inference
+
+For large-scale evaluation across multiple VLMs (Claude, Nova, Llama, Qwen), see `bedrock/`:
+
+```bash
+# Prepare and submit batch inference jobs
+python bedrock/run_bedrock_batch_inference.py \
+    --dataset data/vcape-r-20k \
+    --s3-bucket your-s3-bucket \
+    --s3-prefix batch_input/vcape-r-20k \
+    --batch-size 500 \
+    --submit-jobs
+
+# Evaluate batch outputs
+python bedrock/evaluate_batch_outputs.py \
+    --output-dir outputs/ \
+    --datasets vcape-s-20k=data/vcape-s-20k vcape-r-20k=data/vcape-r-20k
+```
+
+
+## Finetuning Pipeline Overview
+
+The fine-tuning pipeline has three phases, orchestrated by a single entry-point script:
+
+1. **Stratified Sampling** — select N image pairs per rejection-reason category (+ N accepted) from each dataset split.
+2. **Training Data Formatting** — convert sampled pairs into Qwen3-VL chat-format examples with ground-truth chain-of-thought reasoning.
+3. **LoRA Fine-Tuning** — train lightweight adapter weights on top of the frozen base model.
+
 
 ## CLI Arguments (finetune_qwen3_autoqa.py)
 
@@ -97,25 +113,4 @@ Adapter weights are saved under `<output-dir>/n<N>/`:
 - `training_log.json` — per-step training metrics
 - `metrics_summary.json` — structured metrics for plotting
 
-## Batch Inference
 
-For large-scale evaluation across multiple VLMs (Claude, Nova, Llama, Qwen), see `bedrock/`:
-
-```bash
-# Prepare and submit batch inference jobs
-python bedrock/run_bedrock_batch_inference.py \
-    --dataset data/vcape-r-20k \
-    --s3-bucket your-s3-bucket \
-    --s3-prefix batch_input/vcape-r-20k \
-    --batch-size 500 \
-    --submit-jobs
-
-# Evaluate batch outputs
-python bedrock/evaluate_batch_outputs.py \
-    --output-dir outputs/ \
-    --datasets vcape-s-20k=data/vcape-s-20k vcape-r-20k=data/vcape-r-20k
-```
-
-## License
-
-MIT
