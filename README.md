@@ -1,4 +1,4 @@
-Data: [V-CAPE](https://huggingface.co/datasets/anonymous1code/data)
+[Data](https://huggingface.co/datasets/anonymous1code/data)
 ## Quick Start
 
 ```bash
